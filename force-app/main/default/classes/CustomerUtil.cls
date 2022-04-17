@@ -313,7 +313,7 @@ public with sharing class CustomerUtil {
         List<Customer__c> toSync = new List<Customer__c>();
 
         for ( Customer__c c : customers ) {
-            if ( c.Account__c != null ) {
+            if ( c.Account__c != null && !c.updatedByAcct__c ) {
                 toSync.add( c );
             }
         }
@@ -380,6 +380,7 @@ public with sharing class CustomerUtil {
         for ( Customer__c c : oldCustomers ) {
             if ( c.Status__c == 'Integrado' && !newCustomersMap.get( c.Id ).updatedByAcct__c ) {
                 newCustomersMap.get( c.Id ).addError('Não se pode alterar um customer integrado');
+            } else {
                	newCustomersMap.get( c.Id ).updatedByAcct__c = false;
             }
         }        

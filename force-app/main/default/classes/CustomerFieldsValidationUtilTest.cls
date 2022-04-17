@@ -85,7 +85,7 @@ private with sharing class CustomerFieldsValidationUtilTest {
         insert new List<Customer__c>{ cPessoaFisica2, cPessoaJuridica2 };
 
         cPessoaFisica2.CPF__c='12345678910';
-        cPessoaJuridica2.CNPJ__c='1234567891237';
+        cPessoaJuridica2.CNPJ__c='12345678912378';
 
         Database.SaveResult[] result2 = Database.update( new List<Customer__c>{ cPessoaFisica2, cPessoaJuridica2 }, false );
 

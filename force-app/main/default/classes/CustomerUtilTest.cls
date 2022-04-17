@@ -278,7 +278,7 @@ public with sharing class CustomerUtilTest {
         cPessoaFisica2.Account__c = accounts[0].Id;
         cPessoaJuridica2.Account__c = accounts[1].Id;
 
-        update new List<Customer__c>{ cPessoaFisica2, cPessoaJuridica2 };
+        update new List<Account>{ cPessoaFisica2, cPessoaJuridica2 };
 
         cPessoaFisica2 = [SELECT CPF__c FROM Customer__c WHERE Id = :cPessoaFisica2.Id ];
         cPessoaJuridica2 = [SELECT CNPJ__c FROM Customer__c WHERE Id = :cPessoaJuridica2.Id ];

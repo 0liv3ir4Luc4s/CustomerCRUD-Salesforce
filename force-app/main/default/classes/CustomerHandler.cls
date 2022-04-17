@@ -20,15 +20,16 @@ public with sharing class CustomerHandler implements TriggerHandlerInterface {
     public void afterInsert() {}
 
     public void beforeUpdate() {
-        CustomerUtil.blockEdition( (List<Customer__c>) Trigger.old, (Map<Id, Customer__c>) Trigger.newMap );
         
-        CustomerUtil.syncCustomerWithAccount( (Map<Id, Customer__c>) Trigger.newMap, (Map<Id, Customer__c>) Trigger.oldMap );
-    
         CustomerUtil.sendErrorMessages( (List<Customer__c>) Trigger.new, (Map<Id, Customer__c>) Trigger.newMap, (List<Customer__c>) Trigger.old, (Map<Id, Customer__c>) Trigger.oldMap );
+
+        CustomerUtil.syncCustomerWithAccount( (Map<Id, Customer__c>) Trigger.newMap, (Map<Id, Customer__c>) Trigger.oldMap );
     
         CustomerUtil.submitToApproval( (Map<Id, Customer__c>) Trigger.newMap, (Map<Id, Customer__c>) Trigger.oldMap );
 
         CustomerUtil.treatApprovedsAndRejecteds( (Map<Id, Customer__c>) Trigger.newMap );
+
+        CustomerUtil.blockEdition( (List<Customer__c>) Trigger.old, (Map<Id, Customer__c>) Trigger.newMap );
 
     }
 
