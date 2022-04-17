@@ -95,6 +95,18 @@ private with sharing class CustomerFieldsValidationUtilTest {
         System.assertEquals( 'Não se pode alterar o CPF de um Customer com conta ', result2[0].getErrors()[0].getMessage() );
         System.assertEquals( 'Não se pode alterar o CNPJ de um Customer com conta ', result2[1].getErrors()[0].getMessage() );
 
+        cPessoaFisica2.Account__c = accounts[1].Id;
+        cPessoaJuridica2.Account__c = accounts[0].Id;
+
+        result2 = Database.update( new List<Customer__c>{ cPessoaFisica2, cPessoaJuridica2 }, false );
+
+        System.assert( !result2[0].isSuccess() );
+        System.assert( !result2[1].isSuccess() );
+        System.assert( result2[0].getErrors().size() == 1 );
+        System.assert( result2[1].getErrors().size() == 1 );
+        System.assertEquals( 'A conta relacionada deve ser uma Pessoa Física ', result2[0].getErrors()[0].getMessage() );
+        System.assertEquals( 'A conta relacionada dever uma Pessoa Jurídica ', result2[1].getErrors()[0].getMessage() );
+
     }
 
     @isTest
