@@ -25,6 +25,22 @@ private with sharing class CustomerFieldsValidationUtilTest {
         System.assert( result.getErrors().size() == 1 );
         System.assertEquals( 'Campo CNPJ inválido! ', result.getErrors()[0].getMessage() );
 
+        List<Account> insertedAccounts = new List<Account>{ new Account(Name='Test1', RecordTypeId='0128c000002EsqWAAS', CPF__c='12345678956'), new Account(Name='Test2', RecordTypeId='0128c000002EsqgAAC', CNPJ__c='12345678965655') };
+
+        insert insertedAccounts;
+
+        result = Database.insert( new Customer__c(Name='Test3', RecordTypeId='0128c000002EoQVAA0', CPF__c='12345678945', Account__c=insertedAccounts[1].Id ), false );
+
+        System.assert( !result.isSuccess() );
+        System.assert( result.getErrors().size() == 1 );
+        System.assertEquals( 'A conta relacionada deve ser uma Pessoa Física ', result.getErrors()[0].getMessage() );
+
+        result = Database.insert( new Customer__c(Name='Test4', RecordTypeId='0128c000002EoQaAAK', CNPJ__c='1234567891235', Account__c=insertedAccounts[0].Id ), false );
+
+        System.assert( !result.isSuccess() );
+        System.assert( result.getErrors().size() == 1 );
+        System.assertEquals( 'A conta relacionada dever uma Pessoa Jurídica ', result.getErrors()[0].getMessage() );
+
     }
 
     @isTest 
@@ -37,7 +53,7 @@ private with sharing class CustomerFieldsValidationUtilTest {
         result = Database.insert( new Customer__c(Name='Test2', RecordTypeId='0128c000002EoQaAAK', CNPJ__c='00000000000000'), false );
 
         System.assert( result.isSuccess() );
-
+        
     }
 
     @isTest

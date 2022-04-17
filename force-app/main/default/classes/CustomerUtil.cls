@@ -56,8 +56,14 @@ public with sharing class CustomerUtil {
                 toValidateCpfOrCnpj.add( c );
             }
         }
+
+        Map<Id, Customer__c> toValidateRelationship = new Map<Id, Customer__c>();
+
+        for ( Customer__c c : customers ) {
+            toValidateRelationship.put( c.Id, c );
+        }  
         
-        Map<Customer__c, List<String>> validationErrors = CustomerFieldsValidationUtil.getErrorMessages( CustomerFieldsValidationUtil.validateRequired( customers ), CustomerFieldsValidationUtil.validateFormat( customers ) );
+        Map<Customer__c, List<String>> validationErrors = CustomerFieldsValidationUtil.getErrorMessages( CustomerFieldsValidationUtil.validateRequired( customers ), CustomerFieldsValidationUtil.validateFormat( customers ), CustomerFieldsValidationUtil.validateRelationship( toValidateRelationship ) );
         Map<Customer__c, List<String>> duplicateErrors = CustomerUtil.getErrorMessages( CustomerUtil.getCpf_CnpjDuplicates( toValidateCpfOrCnpj ), CustomerUtil.getNameDuplicates( customers ) );
 
         List<Map<Customer__c, List<String>>> errorMessages = new List<Map<Customer__c, List<String>>>();
