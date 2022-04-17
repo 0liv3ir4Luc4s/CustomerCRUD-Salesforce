@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "orgName": "mold company",
+=======
+  "orgName": "dev company",
+>>>>>>> ec9dcbb (Previous code)
   "edition": "Developer",
   "features": ["EnableSetPasswordInApi"],
   "settings": {
