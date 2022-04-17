@@ -273,18 +273,22 @@ public with sharing class CustomerUtilTest {
         Customer__c cPessoaFisica2 = new Customer__c( Name='Test5', RecordTypeId='0128c000002EoQVAA0', CPF__c='12345678954', Account__c = accounts[0].Id );
         Customer__c cPessoaJuridica2 = new Customer__c( Name='Test6', RecordTypeId='0128c000002EoQaAAK', CNPJ__c='12345678912349', Account__c = accounts[1].Id );
 
+        Account acct1 = new Account(Name='Test5', RecordTypeId='0128c000002EsqWAAS', CPF__c='12345678965');
+        Account acct2 = new Account(Name='Test6', RecordTypeId='0128c000002EsqgAAC', CNPJ__c='12345678965655');
+
+        insert new List<Account>{ acct1, acct2 };
         insert new List<Customer__c>{ cPessoaFisica2, cPessoaJuridica2 };
 
-        cPessoaFisica2.Account__c = accounts[0].Id;
-        cPessoaJuridica2.Account__c = accounts[1].Id;
+        cPessoaFisica2.Account__c = acct1.Id;
+        cPessoaJuridica2.Account__c = acct2.Id;
 
-        update new List<Account>{ cPessoaFisica2, cPessoaJuridica2 };
+        update new List<SObject>{ acct1, acct2, cPessoaFisica2, cPessoaJuridica2 };
 
         cPessoaFisica2 = [SELECT CPF__c FROM Customer__c WHERE Id = :cPessoaFisica2.Id ];
         cPessoaJuridica2 = [SELECT CNPJ__c FROM Customer__c WHERE Id = :cPessoaJuridica2.Id ];
 
-        System.assertEquals( accounts[0].CPF__c, cPessoaFisica2.CPF__c );
-        System.assertEquals( accounts[1].CNPJ__c, cPessoaJuridica2.CNPJ__c );
+        System.assertEquals( acct1.CPF__c, cPessoaFisica2.CPF__c );
+        System.assertEquals( acct2.CNPJ__c, cPessoaJuridica2.CNPJ__c );
 
     }
 }
