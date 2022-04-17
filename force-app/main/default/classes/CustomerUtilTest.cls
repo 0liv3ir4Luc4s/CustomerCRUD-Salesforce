@@ -313,6 +313,27 @@ public with sharing class CustomerUtilTest {
 
         System.assert( [ SELECT Count() FROM Account WHERE Id = :customer.Account__c ] == 0 );
 
+        customer = new Customer__c(Name='Test1', RecordTypeId='0128c000002EoQVAA0', CPF__c='84657126954', E_mail__c='emaile@gmail.com');
+        insert customer;
+
+        customer.Status__c  = 'Enviado para integração';
+
+        update customer;
+
+        workItemId = [SELECT Id FROM ProcessInstanceWorkItem WHERE ProcessInstance.TargetObjectId = :customer.Id LIMIT 1 ].Id;
+        req = new Approval.ProcessWorkItemRequest();
+        req.setWorkItemId( workItemId );
+        req.setAction( 'Approve' );
+        Approval.process( req );
+
+        customer.Account__c = [SELECT Account__c FROM Customer__c WHERE Id = :customer.Id LIMIT 1 ].Account__c;
+        insert new List<Contact>{new Contact(LastName='Test2', AccountId=customer.Account__c), new Contact(LastName='Test3', AccountId=customer.Account__c)};
         
+        delete customer;
+
+        System.assert( [ SELECT Count() FROM Account WHERE Id = :customer.Account__c ] == 1 );
+        System.assert( [ SELECT Count() FROM Contact WHERE Account.Id = :customer.Account__c AND createdByTriggerFlag__c = true ] == 0 );
+        System.assert( [ SELECT Count() FROM Contact WHERE Account.Id = :customer.Account__c ] == 2 );
+
     }
 }
