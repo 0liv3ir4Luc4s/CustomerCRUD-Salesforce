@@ -14,14 +14,6 @@ public class AccountUtil {
    				}
         	}
             
-            if ( newAcct.Phone != oldAcct.Phone ) {
-                c.Telefone__c = newAcct.Phone;
-            }
-            
-            if ( newAcct.Name != oldAcct.Name ) {
-                c.Name = newAcct.Name;
-            }
-            
             c.updatedByAcct__c = true;
         }
         
@@ -44,14 +36,4 @@ public class AccountUtil {
         }
     }
 
-    public static void preventDeletionOfContacts( Set<Id> deletedAccountsIds ) {
-
-        List<Contact> toNotDelete = new List<Contact>([SELECT Id FROM Contact WHERE AccountId IN :deletedAccountsIds AND createdByTriggerFlag__c = false]);
-
-        for ( Contact con : toNotDelete ) {
-            con.AccountId = null;
-        }
-
-        update toNotDelete;
-    }
 }

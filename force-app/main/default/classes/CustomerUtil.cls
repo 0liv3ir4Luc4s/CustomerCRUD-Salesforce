@@ -300,20 +300,6 @@ public with sharing class CustomerUtil {
 
     }
 
-    public static void deleteRelatedRecords( List<Customer__c> deletedCustomers ) {
-        
-        List<Id> toGetRecord = new List<Id>();
-
-        for ( Customer__c c : deletedCustomers ) {
-            toGetRecord.add( c.Account__c );
-        }
-
-        List<Account> toDelete = new List<Account>([SELECT Id FROM Account WHERE Id IN :toGetRecord]);
-
-        delete toDelete;
-    
-    }
-    
     public static void syncCustomerWithAccount( List<Customer__c> customers ) {
 
         List<Customer__c> toSync = new List<Customer__c>();
