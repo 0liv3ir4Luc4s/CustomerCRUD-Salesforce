@@ -56,8 +56,14 @@ public with sharing class CustomerUtil {
                 toValidateCpfOrCnpj.add( c );
             }
         }
+
+        Map<Id, Customer__c> toValidateRelationship = new Map<Id, Customer__c>();
+
+        for ( Customer__c c : customers ) {
+            toValidateRelationship.put( c.Id, c );
+        }  
         
-        Map<Customer__c, List<String>> validationErrors = CustomerFieldsValidationUtil.getErrorMessages( CustomerFieldsValidationUtil.validateRequired( customers ), CustomerFieldsValidationUtil.validateFormat( customers ) );
+        Map<Customer__c, List<String>> validationErrors = CustomerFieldsValidationUtil.getErrorMessages( CustomerFieldsValidationUtil.validateRequired( customers ), CustomerFieldsValidationUtil.validateFormat( customers ), CustomerFieldsValidationUtil.validateRelationship( toValidateRelationship ) );
         Map<Customer__c, List<String>> duplicateErrors = CustomerUtil.getErrorMessages( CustomerUtil.getCpf_CnpjDuplicates( toValidateCpfOrCnpj ), CustomerUtil.getNameDuplicates( customers ) );
 
         List<Map<Customer__c, List<String>>> errorMessages = new List<Map<Customer__c, List<String>>>();
@@ -294,26 +300,12 @@ public with sharing class CustomerUtil {
 
     }
 
-    public static void deleteRelatedRecords( List<Customer__c> deletedCustomers ) {
-        
-        List<Id> toGetRecord = new List<Id>();
-
-        for ( Customer__c c : deletedCustomers ) {
-            toGetRecord.add( c.Account__c );
-        }
-
-        List<Account> toDelete = new List<Account>([SELECT Id FROM Account WHERE Id IN :toGetRecord]);
-
-        delete toDelete;
-    
-    }
-    
     public static void syncCustomerWithAccount( List<Customer__c> customers ) {
 
         List<Customer__c> toSync = new List<Customer__c>();
 
         for ( Customer__c c : customers ) {
-            if ( c.Account__c != null ) {
+            if ( c.Account__c != null && !c.updatedByAcct__c ) {
                 toSync.add( c );
             }
         }
@@ -373,13 +365,14 @@ public with sharing class CustomerUtil {
         }
 
         if ( !toDelete.isEmpty() )
-            delete toDelete;
+            Database.delete( toDelete, false );
     }
 
     public static void blockEdition( List<Customer__c> oldCustomers, Map<Id, Customer__c> newCustomersMap ) {
         for ( Customer__c c : oldCustomers ) {
             if ( c.Status__c == 'Integrado' && !newCustomersMap.get( c.Id ).updatedByAcct__c ) {
                 newCustomersMap.get( c.Id ).addError('Não se pode alterar um customer integrado');
+            } else {
                	newCustomersMap.get( c.Id ).updatedByAcct__c = false;
             }
         }        

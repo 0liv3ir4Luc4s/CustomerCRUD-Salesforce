@@ -8,7 +8,7 @@ public with sharing class ContactUtil {
         }
 
         if ( !toDelete.isEmpty() ) {
-            delete toDelete;
+            Database.delete( toDelete, false );
         }
 
     } 

@@ -14,14 +14,6 @@ public class AccountUtil {
    				}
         	}
             
-            if ( newAcct.Phone != oldAcct.Phone ) {
-                c.Telefone__c = newAcct.Phone;
-            }
-            
-            if ( newAcct.Name != oldAcct.Name ) {
-                c.Name = newAcct.Name;
-            }
-            
             c.updatedByAcct__c = true;
         }
         
@@ -44,14 +36,12 @@ public class AccountUtil {
         }
     }
 
-    public static void preventDeletionOfContacts( Set<Id> deletedAccountsIds ) {
+    public static void deleteRelatedCustomer( Map<Id, Account> deletedAccountsMap ) {
+        List<Customer__c> toDelete = [ SELECT Id FROM Customer__c WHERE Account__c IN :deletedAccountsMap.keySet() ];
 
-        List<Contact> toNotDelete = new List<Contact>([SELECT Id FROM Contact WHERE AccountId IN :deletedAccountsIds AND createdByTriggerFlag__c = false]);
-
-        for ( Contact con : toNotDelete ) {
-            con.AccountId = null;
+        if ( !toDelete.isEmpty() ) {
+            delete toDelete;
         }
-
-        update toNotDelete;
     }
+
 }

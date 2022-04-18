@@ -30,10 +30,17 @@ public with sharing class CustomerFieldsValidationUtil {
 
         return invalidRelationships;
     }
+    
+    public static Map<String, List<Customer__c>> validateRelationship( Map<Id, Customer__c> newCustomersMap ) {
+        Map<String, List<Customer__c>> invalidRelationships = new Map<String, List<Customer__c>>();
+
+        invalidRelationships.put( getFieldsLabel('Account__c'), validateRelatedAccountRecordType( newCustomersMap ) );
+        return invalidRelationships;
+    }
 	
     
     // Compila as mensagens de erro
-    public static Map<Customer__c, List<String>> getErrorMessages( Map<String, List<Customer__c>> invalidRecords, Map<String, List<Customer__c>> misformattedRecords ) {
+    public static Map<Customer__c, List<String>> getErrorMessages( Map<String, List<Customer__c>> invalidRecords, Map<String, List<Customer__c>> misformattedRecords, Map<String, List<Customer__c>> invalidRelationships ) {
         Map<Customer__c, List<String>> errorMessages = new Map<Customer__c, List<String>>();
 
         // Prepara o mapa com o compilado de mensagens para cada Customer,
@@ -69,30 +76,6 @@ public with sharing class CustomerFieldsValidationUtil {
             }
         }
 
-        return errorMessages;
-    }
-
-    // Compila as mensagens de erro incluindo a demanda especial de que telefone OU email seja preenchido para a fase 'Enviado para integração'
-    public static Map<Customer__c, List<String>> getErrorMessages( Map<String, List<Customer__c>> invalidRecords, Map<String, List<Customer__c>> misformattedRecords, List<Customer__c> telefoneOrEmailRequired, Map<String, List<Customer__c>> invalidRelationships ) {
-        System.debug(invalidRelationships);
-        // Armazena resultado da chamada normal do método
-        Map<Customer__c, List<String>> errorMessages = getErrorMessages( invalidRecords, misformattedRecords );
-    
-        // Processa demanda especial
-        
-        // Prepara o mapa com o compilado de mensagens para cada Customer,
-        // relacionando o Customer com suas mensagens de erro, evitando repetição
-        for ( Customer__c c : telefoneOrEmailRequired ) {
-            if ( errorMessages.get( c ) == null ) {
-                errorMessages.put( c, new List<String>() );
-            }
-        }
-
-        // Monta as mensagens de erro de acordo com a situação e associa com o Customer
-        for ( Customer__c c : telefoneOrEmailRequired ) {
-            errorMessages.get( c ).add('Email ou Telefone deve ser preenchido!');
-        }
-        System.debug( invalidRelationships );
         for ( List<Customer__c> cList : invalidRelationships.values() ) {
             for ( Customer__c c : cList ) {
                 if ( errorMessages.get( c ) == null ) {
@@ -114,6 +97,30 @@ public with sharing class CustomerFieldsValidationUtil {
                     errorMessages.get( c ).add('Não se pode alterar o ' + invalidRelationshipField + ' de um Customer com conta');
                 }
             }
+        }
+        System.debug( errorMessages );
+        return errorMessages;
+    }
+
+    // Compila as mensagens de erro incluindo a demanda especial de que telefone OU email seja preenchido para a fase 'Enviado para integração'
+    public static Map<Customer__c, List<String>> getErrorMessages( Map<String, List<Customer__c>> invalidRecords, Map<String, List<Customer__c>> misformattedRecords, List<Customer__c> telefoneOrEmailRequired, Map<String, List<Customer__c>> invalidRelationships ) {
+        System.debug(invalidRelationships);
+        // Armazena resultado da chamada normal do método
+        Map<Customer__c, List<String>> errorMessages = getErrorMessages( invalidRecords, misformattedRecords, invalidRelationships );
+    
+        // Processa demanda especial
+        
+        // Prepara o mapa com o compilado de mensagens para cada Customer,
+        // relacionando o Customer com suas mensagens de erro, evitando repetição
+        for ( Customer__c c : telefoneOrEmailRequired ) {
+            if ( errorMessages.get( c ) == null ) {
+                errorMessages.put( c, new List<String>() );
+            }
+        }
+
+        // Monta as mensagens de erro de acordo com a situação e associa com o Customer
+        for ( Customer__c c : telefoneOrEmailRequired ) {
+            errorMessages.get( c ).add('Email ou Telefone deve ser preenchido!');
         }
         
         return errorMessages;

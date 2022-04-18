@@ -25,6 +25,22 @@ private with sharing class CustomerFieldsValidationUtilTest {
         System.assert( result.getErrors().size() == 1 );
         System.assertEquals( 'Campo CNPJ inválido! ', result.getErrors()[0].getMessage() );
 
+        List<Account> insertedAccounts = new List<Account>{ new Account(Name='Test1', RecordTypeId='0128c000002EsqWAAS', CPF__c='12345678956'), new Account(Name='Test2', RecordTypeId='0128c000002EsqgAAC', CNPJ__c='12345678965655') };
+
+        insert insertedAccounts;
+
+        result = Database.insert( new Customer__c(Name='Test3', RecordTypeId='0128c000002EoQVAA0', CPF__c='12345678945', Account__c=insertedAccounts[1].Id ), false );
+
+        System.assert( !result.isSuccess() );
+        System.assert( result.getErrors().size() == 1 );
+        System.assertEquals( 'A conta relacionada deve ser uma Pessoa Física ', result.getErrors()[0].getMessage() );
+
+        result = Database.insert( new Customer__c(Name='Test4', RecordTypeId='0128c000002EoQaAAK', CNPJ__c='1234567891235', Account__c=insertedAccounts[0].Id ), false );
+
+        System.assert( !result.isSuccess() );
+        System.assert( result.getErrors().size() == 1 );
+        System.assertEquals( 'A conta relacionada dever uma Pessoa Jurídica ', result.getErrors()[0].getMessage() );
+
     }
 
     @isTest 
@@ -37,7 +53,7 @@ private with sharing class CustomerFieldsValidationUtilTest {
         result = Database.insert( new Customer__c(Name='Test2', RecordTypeId='0128c000002EoQaAAK', CNPJ__c='00000000000000'), false );
 
         System.assert( result.isSuccess() );
-
+        
     }
 
     @isTest
@@ -85,7 +101,7 @@ private with sharing class CustomerFieldsValidationUtilTest {
         insert new List<Customer__c>{ cPessoaFisica2, cPessoaJuridica2 };
 
         cPessoaFisica2.CPF__c='12345678910';
-        cPessoaJuridica2.CNPJ__c='1234567891237';
+        cPessoaJuridica2.CNPJ__c='12345678912378';
 
         Database.SaveResult[] result2 = Database.update( new List<Customer__c>{ cPessoaFisica2, cPessoaJuridica2 }, false );
 
@@ -94,6 +110,18 @@ private with sharing class CustomerFieldsValidationUtilTest {
         System.assert( result2[0].getErrors().size() == 1 && result2[1].getErrors().size() == 1 );
         System.assertEquals( 'Não se pode alterar o CPF de um Customer com conta ', result2[0].getErrors()[0].getMessage() );
         System.assertEquals( 'Não se pode alterar o CNPJ de um Customer com conta ', result2[1].getErrors()[0].getMessage() );
+
+        cPessoaFisica2.Account__c = accounts[1].Id;
+        cPessoaJuridica2.Account__c = accounts[0].Id;
+
+        result2 = Database.update( new List<Customer__c>{ cPessoaFisica2, cPessoaJuridica2 }, false );
+
+        System.assert( !result2[0].isSuccess() );
+        System.assert( !result2[1].isSuccess() );
+        System.assert( result2[0].getErrors().size() == 1 );
+        System.assert( result2[1].getErrors().size() == 1 );
+        System.assertEquals( 'A conta relacionada deve ser uma Pessoa Física ', result2[0].getErrors()[0].getMessage() );
+        System.assertEquals( 'A conta relacionada dever uma Pessoa Jurídica ', result2[1].getErrors()[0].getMessage() );
 
     }
 
