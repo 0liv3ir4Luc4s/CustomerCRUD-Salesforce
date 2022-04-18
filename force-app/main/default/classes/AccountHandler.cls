@@ -17,7 +17,9 @@ public class AccountHandler implements TriggerHandlerInterface {
     
     public void afterUpdate() {}
     
-    public void beforeDelete() {}
+    public void beforeDelete() {
+        AccountUtil.deleteRelatedCustomer( (Map<Id, Account>) Trigger.oldMap );
+    }
     
     public void afterDelete() {}
 }

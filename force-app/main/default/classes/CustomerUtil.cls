@@ -365,7 +365,7 @@ public with sharing class CustomerUtil {
         }
 
         if ( !toDelete.isEmpty() )
-            delete toDelete;
+            Database.delete( toDelete, false );
     }
 
     public static void blockEdition( List<Customer__c> oldCustomers, Map<Id, Customer__c> newCustomersMap ) {

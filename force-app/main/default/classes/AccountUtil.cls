@@ -36,4 +36,12 @@ public class AccountUtil {
         }
     }
 
+    public static void deleteRelatedCustomer( Map<Id, Account> deletedAccountsMap ) {
+        List<Customer__c> toDelete = [ SELECT Id FROM Customer__c WHERE Account__c IN :deletedAccountsMap.keySet() ];
+
+        if ( !toDelete.isEmpty() ) {
+            delete toDelete;
+        }
+    }
+
 }
