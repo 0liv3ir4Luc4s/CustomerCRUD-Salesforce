@@ -1,27 +1,9 @@
 @isTest
-public with sharing class AccountUtilTest {
+public class AccountUtilTest {
    
     @isTest
     static void testUpdateFailure() {
-        insert new Account(Name='Test1', RecordTypeId='0128c000002EsqWAAS', CPF__c='12345678945');
-
-        insert new Account(Name='Test2', RecordTypeId='0128c000002EsqgAAC', CNPJ__c='12345678912345');
-
-        Customer__c cPessoaFisica = new Customer__c();
-
-        cPessoaFisica.Name = 'Test1';
-        cPessoaFisica.RecordTypeId = '0128c000002EoQVAA0';
-        cPessoaFisica.CPF__c = '12345678946';
-
-        Customer__c cPessoaJuridica = new Customer__c();
-
-        cPessoaJuridica.Name = 'Test2';
-        cPessoaJuridica.RecordTypeId = '0128c000002EoQaAAK';
-        cPessoaJuridica.CNPJ__c = '12345678912346';
-        
-        List<Customer__c> inserteds = new List<Customer__c>{ cPessoaFisica, cPessoaJuridica };
-
-        insert inserteds;
+        List<Customer__c> inserted = TestDataFactory.createValidCustomersPessoaFisica(1);
 
         inserteds[0].E_mail__c = 'email@email.com';
         inserteds[0].Status__c = 'Enviado para integração';
