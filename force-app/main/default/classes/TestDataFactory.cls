@@ -4,11 +4,20 @@ public class TestDataFactory {
     private static final Id RECORD_TYPE_ID_CUSTOMER_PESSOA_FISICA = TestUtil.getRecordTypeId(Schema.SObjectType.Customer__c, 'Pessoa Física');
     private static final Id RECORD_TYPE_ID_CUSTOMER_PESSOA_JURIDICA = TestUtil.getRecordTypeId(Schema.SObjectType.Customer__c, 'Pessoa Jurídica');
 
-    public static Customer[] createValidCustomersPessoaFisica(Integer numCustomers) {
+    public static Customer__c[] createValidCustomersPessoaFisica(Integer numCustomers) {
         List<Customer__c> toInsert = new List<Customer__c>();
         for (Integer i = 0; i < numCustomers; i++) {
-            toInsert.add(new Customer__c(Name='ValidCustomer'+i, RecordTypeId=RECORD_TYPE_ID_CUSTOMER_PESSOA_FISICA, CPF__c=getCpf(true)));
+            toInsert.add(new Customer__c(Name='ValidCustomerPF'+i, RecordTypeId=RECORD_TYPE_ID_CUSTOMER_PESSOA_FISICA, CPF__c=getCpf(true)));
         }        
+        insert toInsert;
+        return toInsert;
+    }
+    
+    public static Customer__c[] createValidCustomersPessoaJuridica(Integer numCustomers) {
+        List<Customer__c> toInsert = new List<Customer__c>();
+        for (Integer i = 0; i < numCustomers; i++) {
+            toInsert.add(new Customer__c(Name='ValidCustomerPJ'+i, RecordTypeId=RECORD_TYPE_ID_CUSTOMER_PESSOA_JURIDICA, CNPJ__c=getCnpj(true)));
+        }
         insert toInsert;
         return toInsert;
     }
@@ -58,7 +67,7 @@ public class TestDataFactory {
         return isValid ? ''+n1+n2+n3+n4+n5+n6+n7+n8+n9+n10+n11+n12+d1+d2 : ''+n1+n2+n3+n4+n5;
     }
 
-    private static getRandomInteger(Integer n) {
+    private static Integer getRandomInteger(Integer n) {
         Integer ranNum = Math.round(Math.random()*n);
         return ranNum;
     }
