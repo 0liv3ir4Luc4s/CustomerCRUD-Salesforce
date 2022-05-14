@@ -3,21 +3,21 @@ public class AccountUtilTest {
    
     @isTest
     static void testUpdateFailure() {
-        List<Customer__c> inserted = TestDataFactory.createValidCustomersPessoaFisica(1);
+        Customer__c customerPessoaFisica = TestDataFactory.createValidCustomersPessoaFisica(1)[0];
 
-        inserteds[0].E_mail__c = 'email@email.com';
-        inserteds[0].Status__c = 'Enviado para integração';
+        customerPessoaFisica.E_mail__c = 'email@email.com';
+        customerPessoaFisica.Status__c = 'Enviado para integração';
 
-        update inserteds[0];
+        update customerPessoaFisica;
 
-        Id workItemId = [SELECT Id FROM ProcessInstanceWorkItem WHERE ProcessInstance.TargetObjectId = :inserteds[0].Id ][0].Id;
+        Id workItemId = [SELECT Id FROM ProcessInstanceWorkItem WHERE ProcessInstance.TargetObjectId = :customerPessoaFisica.Id ][0].Id;
         Approval.ProcessWorkItemRequest approveCPF = new Approval.ProcessWorkItemRequest();
         approveCPF.setWorkItemId( workItemId );
         approveCPF.setAction( 'Approve' );
         Approval.process( approveCPF );
 
-        inserteds[0].Account__c = [SELECT Account__c FROM Customer__c WHERE Id = :inserteds[0].Id].Account__c;
-        Account a = [SELECT CPF__c FROM Account WHERE Id = :inserteds[0].Account__c ];
+        customerPessoaFisica.Account__c = [SELECT Account__c FROM Customer__c WHERE Id = :customerPessoaFisica.Id].Account__c;
+        Account a = [SELECT CPF__c FROM Account WHERE Id = :customerPessoaFisica.Account__c ];
 
         a.CPF__c = '123456789';
 
@@ -27,20 +27,22 @@ public class AccountUtilTest {
         System.assert( result.getErrors().size() == 1 );
         System.assertEquals( 'Campo CPF inválido!  ', result.getErrors()[0].getMessage() );
 
-        cPessoaJuridica.E_mail__c = 'email2@email.com';
-        cPessoaJuridica.Status__c = 'Enviado para integração';
+        Customer__c customerPessoaJuridica = TestDataFactory.createValidCustomersPessoaJuridica(1)[0];
 
-        update cPessoaJuridica;
+        customerPessoaJuridica.E_mail__c = 'email2@email.com';
+        customerPessoaJuridica.Status__c = 'Enviado para integração';
 
-        workItemId = [SELECT Id FROM ProcessInstanceWorkItem WHERE ProcessInstance.TargetObjectId = :inserteds[1].Id ][0].Id;
+        update customerPessoaJuridica;
+
+        workItemId = [SELECT Id FROM ProcessInstanceWorkItem WHERE ProcessInstance.TargetObjectId = :customerPessoaJuridica.Id ][0].Id;
         Approval.ProcessWorkItemRequest approveCNPJ = new Approval.ProcessWorkItemRequest();
         approveCNPJ.setWorkItemId( workItemId );
         approveCNPJ.setAction( 'Approve' );
         Approval.process( approveCNPJ );
 
-        inserteds[1].Account__c = [SELECT Account__c FROM Customer__c WHERE Id = :inserteds[1].Id ].Account__c;
+        customerPessoaJuridica.Account__c = [SELECT Account__c FROM Customer__c WHERE Id = :customerPessoaJuridica.Id ].Account__c;
 
-        result = Database.update( new Account( Id=inserteds[1].Account__c, CNPJ__c='123456789' ), false );
+        result = Database.update( new Account( Id=customerPessoaJuridica.Account__c, CNPJ__c='123456789' ), false );
 
         System.assert( !result.isSuccess() );
         System.assert( result.getErrors().size() == 1 );
