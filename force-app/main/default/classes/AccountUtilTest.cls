@@ -5,10 +5,9 @@ public class AccountUtilTest {
     static void testUpdateFailure() {
         Customer__c customerPessoaFisica = TestDataFactory.createValidCustomersPessoaFisica(1)[0];
 
-        customerPessoaFisica.E_mail__c = 'email@email.com';
-        customerPessoaFisica.Status__c = 'Enviado para integração';
+        Customer__c customerPessoaJuridica = TestDataFactory.createValidCustomersPessoaJuridica(1)[0];
 
-        update customerPessoaFisica;
+        TestUtil.sendCustomersToIntegration(new List<Customer__c> {customerPessoaFisica, customerPessoaJuridica});
 
         Id workItemId = [SELECT Id FROM ProcessInstanceWorkItem WHERE ProcessInstance.TargetObjectId = :customerPessoaFisica.Id ][0].Id;
         Approval.ProcessWorkItemRequest approveCPF = new Approval.ProcessWorkItemRequest();
@@ -26,13 +25,6 @@ public class AccountUtilTest {
         System.assert( !result.isSuccess() );
         System.assert( result.getErrors().size() == 1 );
         System.assertEquals( 'Campo CPF inválido!  ', result.getErrors()[0].getMessage() );
-
-        Customer__c customerPessoaJuridica = TestDataFactory.createValidCustomersPessoaJuridica(1)[0];
-
-        customerPessoaJuridica.E_mail__c = 'email2@email.com';
-        customerPessoaJuridica.Status__c = 'Enviado para integração';
-
-        update customerPessoaJuridica;
 
         workItemId = [SELECT Id FROM ProcessInstanceWorkItem WHERE ProcessInstance.TargetObjectId = :customerPessoaJuridica.Id ][0].Id;
         Approval.ProcessWorkItemRequest approveCNPJ = new Approval.ProcessWorkItemRequest();
