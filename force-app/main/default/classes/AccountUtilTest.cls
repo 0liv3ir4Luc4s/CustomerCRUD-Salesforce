@@ -78,63 +78,31 @@ public class AccountUtilTest {
 
     @isTest 
     static void testUpdateSuccess() {
-        insert new Account(Name='Test1', RecordTypeId='0128c000002EsqWAAS', CPF__c='12345678945');
-
-        insert new Account(Name='Test2', RecordTypeId='0128c000002EsqgAAC', CNPJ__c='12345678912345');
-
-        Customer__c cPessoaFisica = new Customer__c();
-
-        cPessoaFisica.Name = 'Test1';
-        cPessoaFisica.RecordTypeId = '0128c000002EoQVAA0';
-        cPessoaFisica.CPF__c = '12345678946';
-
-        Customer__c cPessoaJuridica = new Customer__c();
-
-        cPessoaJuridica.Name = 'Test2';
-        cPessoaJuridica.RecordTypeId = '0128c000002EoQaAAK';
-        cPessoaJuridica.CNPJ__c = '12345678912346';
         
-        List<Customer__c> inserteds = new List<Customer__c>{ cPessoaFisica, cPessoaJuridica };
+        Customer__c cPessoaFisica = TestDataFactory.createValidCustomersPessoaFisica(1)[0];
 
-        insert inserteds;
+        Customer__c cPessoaJuridica = TestDataFactory.createValidCustomersPessoaJuridica(1)[0];
 
-        cPessoaFisica.E_mail__c = 'email@email.com';
-        cPessoaFisica.Status__c = 'Enviado para integração';
+        Customer__c[] customers = new List<Customer__c>{cPessoaFisica, cPessoaJuridica};
 
-        update cPessoaFisica;
-
-        Id workItemId = [SELECT Id FROM ProcessInstanceWorkItem WHERE ProcessInstance.TargetObjectId = :inserteds[0].Id ][0].Id;
-        Approval.ProcessWorkItemRequest approveCPF = new Approval.ProcessWorkItemRequest();
-        approveCPF.setWorkItemId( workItemId );
-        approveCPF.setAction( 'Approve' );
-        Approval.process( approveCPF );
+        TestUtil.sendCustomersToIntegration(customers);
+        TestUtil.approveCustomers(customers);
 
         cPessoaFisica.Account__c = [SELECT Account__c FROM Customer__c WHERE Id = :cPessoaFisica.Id ].Account__c;
 
-        update new Account( Id=inserteds[0].Account__c, CPF__c='12345678912' );
+        update new Account( Id=cPessoaFisica.Account__c, CPF__c='12345678912' );
 
-        inserteds[0].CPF__c = [SELECT CPF__c FROM Customer__c WHERE Id = :inserteds[0].Id ].CPF__c;
+        cPessoaFisica.CPF__c = [SELECT CPF__c FROM Customer__c WHERE Id = :cPessoaFisica.Id ].CPF__c;
 
-        System.assertEquals( '12345678912', inserteds[0].CPF__c );
-
-        cPessoaJuridica.E_mail__c = 'email2@email.com';
-        cPessoaJuridica.Status__c = 'Enviado para integração';
-
-        update cPessoaJuridica;
-
-        workItemId = [SELECT Id FROM ProcessInstanceWorkItem WHERE ProcessInstance.TargetObjectId = :inserteds[1].Id ][0].Id;
-        Approval.ProcessWorkItemRequest approveCNPJ = new Approval.ProcessWorkItemRequest();
-        approveCNPJ.setWorkItemId( workItemId );
-        approveCNPJ.setAction( 'Approve' );
-        Approval.process( approveCNPJ );
+        System.assertEquals( '12345678912', cPessoaFisica.CPF__c );
 
         cPessoaJuridica.Account__c = [SELECT Account__c FROM Customer__c WHERE Id = :cPessoaJuridica.Id ].Account__c;
 
-        update new Account( Id=inserteds[1].Account__c, CNPJ__c='12345678912348' );
+        update new Account( Id=cPessoaJuridica.Account__c, CNPJ__c='12345678912348' );
 
-        inserteds[1].CNPJ__c = [SELECT CNPJ__c FROM Customer__c WHERE Id = :inserteds[1].Id ].CNPJ__c;
+        cPessoaJuridica.CNPJ__c = [SELECT CNPJ__c FROM Customer__c WHERE Id = :cPessoaJuridica.Id ].CNPJ__c;
 
-        System.assertEquals( '12345678912348', inserteds[1].CNPJ__c );
+        System.assertEquals( '12345678912348', cPessoaJuridica.CNPJ__c );
     
     }
 
