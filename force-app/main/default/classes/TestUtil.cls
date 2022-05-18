@@ -12,4 +12,16 @@ public class TestUtil {
         update customers;
     }
 
+    public static void approveCustomers(Customer__c[] customers) {
+        Map<Id, Customer__c> customersMap = new Map<Id, Customer__c>(customers);
+        Approval.ProcessWorkItemRequest request;
+        Approval.ProcessWorkItemRequest[] requests = new List<Approval.ProcessWorkItemRequest>();
+        for (ProcessInstanceWorkItem p : [SELECT Id FROM ProcessInstanceWorkItem WHERE ProcessInstance.TargetObjectId IN :customersMap.keySet()]) {
+            request = new Approval.ProcessWorkItemRequest();
+            request.setWorkItemId(p.Id);
+            request.setAction('Approve');
+            requests.add(request);
+        }
+        Approval.process(requests);
+    }
 }
