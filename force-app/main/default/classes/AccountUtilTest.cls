@@ -161,4 +161,29 @@ public class AccountUtilTest {
 
     }
 
+    @isTest
+    static void testDeleteSuccessBulk() {
+        Customer__c[] customers = new List<Customer__c>();
+        customers.addAll(TestDataFactory.createValidCustomersPessoaFisica(50));
+        customers.addAll(TestDataFactory.createValidCustomersPessoaJuridica(50));
+
+        TestUtil.sendCustomersToIntegration(customers);
+        TestUtil.approveCustomers(customers);
+
+        customers = [SELECT Account__c FROM Customer__c WHERE Id IN :(new Map<Id, Customer__c>(customers).keySet())];
+
+        Set<Id> relatedAccountsIds = new Set<Id>();
+
+        for(Customer__c c : customers) relatedAccountsIds.add(c.Account__c);
+
+        Map<Id, Account> relatedAccounts = new Map<Id, Account>([SELECT CPF__c, CNPJ__c, RecordTypeId FROM Account WHERE Id IN :relatedAccountsIds]);         
+
+        delete relatedAccounts.values();
+
+        System.assert( [ SELECT Count() FROM Account WHERE Id IN :relatedAccountsIds ] == 0 );
+        System.assert( [ SELECT Count() FROM Customer__c WHERE Id = : (new Map<Id, Customer__c>(customers).keySet()) ] == 0 );
+        System.assert( [ SELECT Count() FROM Contact WHERE AccountId IN :relatedAccountsIds ] == 0 );
+
+    }
+
 }
