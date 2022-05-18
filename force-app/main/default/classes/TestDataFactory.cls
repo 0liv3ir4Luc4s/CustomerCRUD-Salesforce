@@ -1,13 +1,10 @@
 @isTest
 public class TestDataFactory {
-
-    private static final Id RECORD_TYPE_ID_CUSTOMER_PESSOA_FISICA = TestUtil.getRecordTypeId(Schema.SObjectType.Customer__c, 'Pessoa Física');
-    private static final Id RECORD_TYPE_ID_CUSTOMER_PESSOA_JURIDICA = TestUtil.getRecordTypeId(Schema.SObjectType.Customer__c, 'Pessoa Jurídica');
-
+    
     public static Customer__c[] createValidCustomersPessoaFisica(Integer numCustomers) {
         List<Customer__c> toInsert = new List<Customer__c>();
         for (Integer i = 0; i < numCustomers; i++) {
-            toInsert.add(new Customer__c(Name='ValidCustomerPF'+i, RecordTypeId=RECORD_TYPE_ID_CUSTOMER_PESSOA_FISICA, CPF__c=getCpf(true)));
+            toInsert.add(new Customer__c(Name='ValidCustomerPF'+i, RecordTypeId=TestUtil.RECORD_TYPE_ID_CUSTOMER_PESSOA_FISICA, CPF__c=getCpf(true)));
         }        
         insert toInsert;
         return toInsert;
@@ -16,13 +13,13 @@ public class TestDataFactory {
     public static Customer__c[] createValidCustomersPessoaJuridica(Integer numCustomers) {
         List<Customer__c> toInsert = new List<Customer__c>();
         for (Integer i = 0; i < numCustomers; i++) {
-            toInsert.add(new Customer__c(Name='ValidCustomerPJ'+i, RecordTypeId=RECORD_TYPE_ID_CUSTOMER_PESSOA_JURIDICA, CNPJ__c=getCnpj(true)));
+            toInsert.add(new Customer__c(Name='ValidCustomerPJ'+i, RecordTypeId=TestUtil.RECORD_TYPE_ID_CUSTOMER_PESSOA_JURIDICA, CNPJ__c=getCnpj(true)));
         }
         insert toInsert;
         return toInsert;
     }
 
-    private static String getCpf(Boolean isValid) {
+    public static String getCpf(Boolean isValid) {
         Integer span = 9;
         Integer n1 = getRandomInteger(span);
         Integer n2 = getRandomInteger(span);
@@ -43,7 +40,7 @@ public class TestDataFactory {
         return isValid ? ''+n1+n2+n3+n4+n5+n6+n7+n8+n9+d1+d2 : ''+n1+n2+n3+n4+n5;
     }
 
-    private static String getCnpj(Boolean isValid) {
+    public static String getCnpj(Boolean isValid) {
         Integer n = 9;
         Integer n1  = getRandomInteger(n);
         Integer n2  = getRandomInteger(n);

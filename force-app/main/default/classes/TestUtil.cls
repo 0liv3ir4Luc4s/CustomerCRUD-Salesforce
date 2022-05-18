@@ -1,5 +1,11 @@
 @isTest
 public class TestUtil {
+
+    public static final Id RECORD_TYPE_ID_CUSTOMER_PESSOA_FISICA = TestUtil.getRecordTypeId(Schema.SObjectType.Customer__c, 'Pessoa Física');
+    public static final Id RECORD_TYPE_ID_CUSTOMER_PESSOA_JURIDICA = TestUtil.getRecordTypeId(Schema.SObjectType.Customer__c, 'Pessoa Jurídica');
+    public static final Id RECORD_TYPE_ID_ACCOUNT_PESSOA_FISICA = TestUtil.getRecordTypeId(Schema.SObjectType.Account, 'Pessoa Física');
+    public static final Id RECORD_TYPE_ID_ACCOUNT_PESSOA_JURIDICA = TestUtil.getRecordTypeId(Schema.SObjectType.Account, 'Pessoa Jurídica');
+
     public static Id getRecordTypeId(Schema.DescribeSObjectResult salesforceObject, String recordTypeName) {
         return salesforceObject.getRecordTypeInfosByName().get(recordTypeName).getRecordTypeId();
     }

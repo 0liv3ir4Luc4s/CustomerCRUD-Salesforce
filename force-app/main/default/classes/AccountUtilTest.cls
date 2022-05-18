@@ -32,6 +32,49 @@ public class AccountUtilTest {
         System.assert( result.getErrors().size() == 1 );
         System.assertEquals( 'Campo CNPJ inválido!  ', result.getErrors()[0].getMessage() );
     }
+    
+    @isTest
+    static void testUpdateFailureBulk() {
+        Customer__c[] customers = new List<Customer__c>();
+        customers.addAll(TestDataFactory.createValidCustomersPessoaFisica(50));
+        customers.addAll(TestDataFactory.createValidCustomersPessoaJuridica(50));
+
+        TestUtil.sendCustomersToIntegration(customers);
+
+        TestUtil.approveCustomers(customers);
+
+        customers = [SELECT Account__c FROM Customer__c WHERE Id IN :(new Map<Id, Customer__c>(customers).keySet())];
+
+        Set<Id> relatedAccountsIds = new Set<Id>();
+
+        for(Customer__c c : customers) relatedAccountsIds.add(c.Account__c);
+
+        Map<Id, Account> relatedAccounts = new Map<Id, Account>([SELECT CPF__c, CNPJ__c, RecordTypeId FROM Account WHERE Id IN :relatedAccountsIds]);         
+
+        for(Account a : relatedAccounts.values()) {
+            if (a.RecordTypeId == TestUtil.RECORD_TYPE_ID_ACCOUNT_PESSOA_FISICA) {
+               a.CPF__c = TestDataFactory.getCpf(false); 
+            } else if (a.RecordTypeId == TestUtil.RECORD_TYPE_ID_ACCOUNT_PESSOA_JURIDICA) {
+               a.CNPJ__c = TestDataFactory.getCnpj(false);
+            }
+        }
+
+        Database.SaveResult[] results = Database.update(relatedAccounts.values(), false);
+        
+        String errorMessage;
+
+        for (Database.SaveResult result : results) {
+            System.assert(!result.isSuccess());
+            System.assert(result.getErrors().size() == 1);
+            if (relatedAccounts.get(result.getId()).RecordTypeId == TestUtil.RECORD_TYPE_ID_ACCOUNT_PESSOA_FISICA) {
+                errorMessage = 'Campo CPF inválido!  ';
+            } else if (relatedAccounts.get(result.getId()).RecordTypeId == TestUtil.RECORD_TYPE_ID_ACCOUNT_PESSOA_JURIDICA) {
+                errorMessage = 'Campo CNPJ inválido!  ';
+            }
+            System.assertEquals(errorMessage, result.getErrors()[0].getMessage());
+        }
+
+    }
 
     @isTest 
     static void testUpdateSuccess() {
