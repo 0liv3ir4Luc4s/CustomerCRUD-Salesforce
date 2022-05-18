@@ -146,26 +146,18 @@ public class AccountUtilTest {
 
     @isTest 
     static void testDeleteSuccess() {
-        Customer__c customer = new Customer__c(Name='Test1', RecordTypeId='0128c000002EoQVAA0', CPF__c='84657126954', E_mail__c='emaile@gmail.com');
-        insert customer;
+        Customer__c[] customer = new List<Customer__c>{TestDataFactory.createValidCustomersPessoaFisica(1)[0]};
 
-        customer.Status__c  = 'Enviado para integração';
+        TestUtil.sendCustomersToIntegration(customer);
+        TestUtil.approveCustomers(customer);
 
-        update customer;
+        customer[0].Account__c = [SELECT Account__c FROM Customer__c WHERE Id = :customer[0].Id LIMIT 1 ].Account__c;
 
-        Id workItemId = [SELECT Id FROM ProcessInstanceWorkItem WHERE ProcessInstance.TargetObjectId = :customer.Id LIMIT 1 ].Id;
-        Approval.ProcessWorkitemRequest req = new Approval.ProcessWorkItemRequest();
-        req.setWorkItemId( workItemId );
-        req.setAction( 'Approve' );
-        Approval.process( req );
+        delete new Account( Id=customer[0].Account__c );
 
-        customer.Account__c = [SELECT Account__c FROM Customer__c WHERE Id = :customer.Id LIMIT 1 ].Account__c;
-
-        delete new Account( Id=customer.Account__c );
-
-        System.assert( [SELECT Count() FROM Account WHERE Id = :customer.Account__c ] == 0 );
-        System.assert( [ SELECT Count() FROM Customer__c WHERE Id = :customer.Id ] == 0 );
-        System.assert( [ SELECT Count() FROM Contact WHERE AccountId =:customer.Account__c ] == 0 );
+        System.assert( [SELECT Count() FROM Account WHERE Id = :customer[0].Account__c ] == 0 );
+        System.assert( [ SELECT Count() FROM Customer__c WHERE Id = :customer[0].Id ] == 0 );
+        System.assert( [ SELECT Count() FROM Contact WHERE AccountId =:customer[0].Account__c ] == 0 );
 
     }
 
