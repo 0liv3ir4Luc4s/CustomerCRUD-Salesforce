@@ -197,16 +197,16 @@ public with sharing class CustomerUtil {
 
         }
 
+        Approval.ProcessSubmitRequest approvalRequest = new Approval.ProcessSubmitRequest();
+        Approval.ProcessSubmitRequest[] requests = new List<Approval.ProcessSubmitRequest>();
         for ( Customer__c c : toSubmitToApproval ) {
-
-            Approval.ProcessSubmitRequest approvalRequest = new Approval.ProcessSubmitRequest();
-
+            approvalRequest = new Approval.ProcessSubmitRequest();
             approvalRequest.setObjectId( c.Id );
             approvalRequest.setSubmitterId( UserInfo.getUserId() );
-
-            Approval.process( approvalRequest );
-
+            requests.add(approvalRequest);
         }
+        Approval.process( requests );
+
     }
 
     // Obtém os Customers que estão sendo atualizados e estão aprovados ou rejeitados
