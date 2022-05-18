@@ -105,8 +105,46 @@ public class AccountUtilTest {
         System.assertEquals( '12345678912348', cPessoaJuridica.CNPJ__c );
     
     }
-
+    
     @isTest
+    static void testUpdateSuccessBulk() {
+        Customer__c[] customers = new List<Customer__c>();
+        customers.addAll(TestDataFactory.createValidCustomersPessoaFisica(50));
+        customers.addAll(TestDataFactory.createValidCustomersPessoaJuridica(50));
+
+        TestUtil.sendCustomersToIntegration(customers);
+        TestUtil.approveCustomers(customers);
+
+        customers = [SELECT Account__c FROM Customer__c WHERE Id IN :(new Map<Id, Customer__c>(customers).keySet())];
+
+        Set<Id> relatedAccountsIds = new Set<Id>();
+
+        for(Customer__c c : customers) relatedAccountsIds.add(c.Account__c);
+
+        Map<Id, Account> relatedAccounts = new Map<Id, Account>([SELECT CPF__c, CNPJ__c, RecordTypeId FROM Account WHERE Id IN :relatedAccountsIds]);         
+
+        for(Account a : relatedAccounts.values()) {
+            if (a.RecordTypeId == TestUtil.RECORD_TYPE_ID_ACCOUNT_PESSOA_FISICA) {
+               a.CPF__c = TestDataFactory.getCpf(true); 
+            } else if (a.RecordTypeId == TestUtil.RECORD_TYPE_ID_ACCOUNT_PESSOA_JURIDICA) {
+               a.CNPJ__c = TestDataFactory.getCnpj(true);
+            }
+        }
+
+        update(relatedAccounts.values()); 
+
+        customers = [SELECT Account__c, RecordTypeId, CPF__c, CNPJ__c FROM Customer__c WHERE Id IN :(new Map<Id, Customer__c>(customers).keySet())];
+
+        for (Customer__c c : customers) {
+            if (c.RecordTypeId == TestUtil.RECORD_TYPE_ID_CUSTOMER_PESSOA_FISICA) {
+                System.assert(c.CPF__c == relatedAccounts.get(c.Account__c).CPF__c);
+            } else if (c.RecordTypeId == TestUtil.RECORD_TYPE_ID_CUSTOMER_PESSOA_JURIDICA) {
+                System.assert(c.CNPJ__c == relatedAccounts.get(c.Account__c).CNPJ__c);
+            }
+        }
+    }
+
+    @isTest 
     static void testDeleteSuccess() {
         Customer__c customer = new Customer__c(Name='Test1', RecordTypeId='0128c000002EoQVAA0', CPF__c='84657126954', E_mail__c='emaile@gmail.com');
         insert customer;
