@@ -64,3 +64,5 @@ modificados, as alterações devem ser refletidas em Customer
 ##### 4. Deletar Conta:
 - Deletar Conta, Contatos e Customers referentes àquela Conta.
 ##### 5. Desenvolver todas as Classes de Teste necessárias.
+- TestDataFactory;
+- Testes em massa;
